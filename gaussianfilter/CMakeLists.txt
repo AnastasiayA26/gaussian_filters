@@ -37,10 +37,25 @@ add_subdirectory(ctikz)
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile @ONLY)
+    set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc)
     add_custom_target(doxygen ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
+
+# Install section
+install(TARGETS filter DESTINATION bin)
+install(DIRECTORY filter/include/ DESTINATION include/filter)
+install(FILES filter/src/filter.cpp DESTINATION src/filter)
+install(DIRECTORY prj.test DESTINATION .)
+install(DIRECTORY cmake DESTINATION .)
+install(FILES CMakeLists.txt DESTINATION .)
+install(TARGETS ctikz DESTINATION bin)
+install(DIRECTORY ctikz/include/ DESTINATION include/ctikz)
+install(FILES ctikz/ctikz.cpp DESTINATION ctikz)
+install(FILES ctikz/include/ctikz/filter.hpp DESTINATION include/ctikz)
+install(FILES ctikz/CMakeLists.txt DESTINATION ctikz)
+
 
 
 
