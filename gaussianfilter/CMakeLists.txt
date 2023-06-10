@@ -16,7 +16,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin.dbg)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin.rel)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_CURRENT_SOURCE_DIR}/bin.relwithdbg)
 
-find_package(OpenCV REQUIRED)
+# Set the vcpkg triplet
+set(VCPKG_TARGET_TRIPLET "x64-windows" CACHE STRING "Vcpkg target triplet")
+
+find_package(OpenCV REQUIRED COMPONENTS core highgui imgcodecs imgproc videoio)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 if(WIN32)
@@ -56,7 +59,6 @@ add_custom_target(build_all
         DEPENDS filter prj.test ctikz
         COMMENT "Building all targets..."
         )
-
        
 
 
