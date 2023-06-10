@@ -1,17 +1,7 @@
 cmake_minimum_required(VERSION 3.23)
-project(gaussianfilter)
+project(gaussianfilter LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 14)
-
-include(cmake/CPM.cmake)
-
-CPMAddPackage(
-        NAME CPM.cmake
-        VERSION 0.36.0
-        GITHUB_REPOSITORY cpm-cmake/CPM.cmake
-        OPTIONS
-        "CPM_SOURCE_CACHE ${CMAKE_BINARY_DIR}/cpm"
-)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmake")
@@ -29,9 +19,14 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${CMAKE_CURRENT_SOURCE_DIR}/bi
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
+if(WIN32)
+    set(OpenCV_RUNTIME_PATH "${OpenCV_DIR}/../../bin")
+else()
+    set(OpenCV_RUNTIME_PATH "${OpenCV_DIR}/../../lib")
+endif()
+
 add_subdirectory(filter)
 add_subdirectory(prj.test)
-
 add_subdirectory(ctikz)
 
 find_package(Doxygen)
@@ -61,6 +56,7 @@ add_custom_target(build_all
         DEPENDS filter prj.test ctikz
         COMMENT "Building all targets..."
         )
+
        
 
 
