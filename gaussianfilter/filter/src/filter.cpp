@@ -8,7 +8,6 @@
 
 #define mp make_pair
 
-
 void GaussianFilter::recursiveGaussianDeriche(const cv::Mat& src, cv::Mat& dst, double sigma) {
     double alpha = 1.695 * sigma;
     double ema = std::exp(-alpha);
@@ -97,7 +96,7 @@ cv::Mat GaussianFilter::read_input_data(const std::string& filename) {
         exit(1);
     }
     cv::Mat normalized_input;
-    input_data.convertTo(normalized_input, CV_64F, 1.0 / 255.0); // Convert to double precision and normalize
+    input_data.convertTo(normalized_input, CV_64F); // Convert to double precision and normalize
     return normalized_input;
 }
 
@@ -115,86 +114,106 @@ cv::Mat GaussianFilter::gaussian_filter(const cv::Mat& input, double sigma) {
     return output;
 }
 
-double GaussianFilter::calculateGaussianError(const cv::Mat& input, const cv::Mat& output) {
-    // Calculate the Mean Squared Error (MSE) between input and output
-    cv::Mat error;
-    cv::absdiff(input, output, error);
-    error = error.mul(error);  // Element-wise square
-    double mse = cv::sum(error)[0] / (input.rows * input.cols);
-    return mse;
-}
-
-double GaussianFilter::calculateRecursiveGaussianDericheError(const cv::Mat& input, const cv::Mat& output) {
-    // Calculate the Mean Squared Error (MSE) between input and output
-    cv::Mat error;
-    cv::absdiff(input, output, error);
-    error = error.mul(error);  // Element-wise square
-    double mse = cv::sum(error)[0] / (input.rows * input.cols);
-    return mse;
-}
-
 bool GaussianFilter::file_exists(const std::string& filename) {
     std::ifstream file(filename);
     return file.good();
 }
-void GaussianFilter::visualizeData(const std::vector<std::pair<double, double>>& data) {
+
+void GaussianFilter::visualizeData(const std::vector<std::vector<std::pair<double, double>>>& data) {
     CTikz test;
     test.start_axis();
-    std::ifstream file("data.txt");
-    if (file.is_open()) {
-        double x, y;
-        std::vector<std::pair<double, double>> asd;
-        while (file >> x >> y) {
-            asd.push_back(std::make_pair(x, y));
-        }
-        file.close();
 
+    // Set colors for each data series
+    std::vector<std::string> colors = {"red", "blue", "green", "pink"};
+
+    // Plot each data series with a different color
+    for (size_t i = 0; i < data.size(); ++i) {
+        const std::vector<std::pair<double, double>>& seriesData = data[i];
         FunctionStyle style;
-        test.drawFunc(asd);
-        test.end_axis();
-        test.create_tikz_file("result");
-    } else {
-        std::cerr << "Failed to open the file." << std::endl;
+        style.color = colors[i];
+        test.drawFunc(seriesData, style);
     }
 
-    std::cout << 1;
+    test.end_axis();
+    test.create_tikz_file("result");
 }
 
-std::vector<std::pair<double, double>> GaussianFilter::calculateDeviations(const cv::Mat& image, const std::string& mode, double sigma) {
+std::vector<std::vector<std::pair<double, double>>> GaussianFilter::calculateDeviations(const cv::Mat& image, const std::string& mode, double sigma) {
     cv::Mat deviationImage;
-    if (mode == "both") {
-        cv::Mat recursiveFiltered;
-        recursiveGaussianDeriche(image, recursiveFiltered, sigma);
-        cv::Mat gaussianFiltered = gaussian_filter(image, sigma);
-        cv::absdiff(recursiveFiltered, gaussianFiltered, deviationImage);
-    }
-    else if (mode == "gaussian") {
-        cv::Mat gaussianFiltered = gaussian_filter(image, sigma);
-        cv::absdiff(image, gaussianFiltered, deviationImage);
+    cv::Mat filteredImage;
+    cv::Mat filteredImage5;
+    cv::Mat filterIm;
+
+    if (mode == "gaussian") {
+        filteredImage = gaussian_filter(image, sigma);
+        filteredImage5 = gaussian_filter(image, sigma * 5);
     }
     else if (mode == "deriche") {
-        cv::Mat dericheFiltered;
-        recursiveGaussianDeriche(image, dericheFiltered, sigma);
-        cv::absdiff(image, dericheFiltered, deviationImage);
+        cv::GaussianBlur(image, filteredImage,cv::Size(0, 0), sigma);
+        filteredImage = filteredImage;
+        cv::GaussianBlur(image, filteredImage5,cv::Size(0, 0), sigma * 5);
+        filteredImage5 = filteredImage5;
+        recursiveGaussianDeriche(image, filterIm, sigma);
+
+
     }
-    std::vector<std::pair<double, double>>  deviationCoordinates;
-    int centerRow = deviationImage.rows / 2;
-    const double* deviationRow = deviationImage.ptr<double>(centerRow);
-    for (int x = 1; x < deviationImage.cols; ++x) {
-        double deviationX = (x - 1) * sigma;
-        double deviationY = deviationRow[x] * sigma;
-        deviationCoordinates.emplace_back(deviationX, deviationY);
+
+    std::vector<std::pair<double, double>> inputCoordinates;
+    std::vector<std::pair<double, double>> outputCoordinates;
+    std::vector<std::pair<double, double>> coordinatesSigma5;
+    std::vector<std::pair<double, double>> differenceCoordinates;
+
+    int centerRow = image.rows / 2;
+    int k = (image.cols/2);
+    int b = k / 3;
+    const double* imageRow = image.ptr<double>(centerRow);
+    const double* filteredRow = filteredImage.ptr<double>(centerRow);
+    const double* filteredRow5 = filteredImage5.ptr<double>(centerRow);
+
+    for (int x = k - b; x < k + b ; ++x) {
+        double inputX = x;
+        double inputY = imageRow[x];
+        double outputY = filteredRow[x];
+        double sigma5Y = filteredRow5[x];
+        double difference = std::abs(outputY - sigma5Y);
+
+        inputCoordinates.emplace_back(inputX, inputY);
+        outputCoordinates.emplace_back(inputX, outputY);
+        coordinatesSigma5.emplace_back(inputX, sigma5Y);
+        differenceCoordinates.emplace_back(inputX, difference);
     }
-    return deviationCoordinates;
+
+    saveCoordinatesToFile("data1.txt", inputCoordinates);
+    saveCoordinatesToFile("data2.txt", outputCoordinates);
+    saveCoordinatesToFile("data3.txt", coordinatesSigma5);
+    saveCoordinatesToFile("data4.txt", differenceCoordinates);
+
+    visualizeData({ inputCoordinates, outputCoordinates, coordinatesSigma5, differenceCoordinates });
+
+    return { inputCoordinates, outputCoordinates, coordinatesSigma5, differenceCoordinates };
 }
 
-void GaussianFilter::compare_algorithms(const std::string & input_filename, double sigma, const std::string & algorithm_type, const std::string & visualization, const std::string & output_file_path1, const std::string & output_file_path2) {
+
+void GaussianFilter::saveCoordinatesToFile(const std::string& filename, const std::vector<std::pair<double, double>>& coordinates) {
+    std::ofstream file(filename);
+    if (file.is_open()) {
+        for (const auto& coord : coordinates) {
+            file << coord.first << " " << coord.second << std::endl;
+        }
+        file.close();
+    }
+    else {
+        std::cerr << "Error: Unable to open file " << filename << " for writing." << std::endl;
+    }
+}
+
+void GaussianFilter::compare_algorithms(const std::string & input_filename, double sigma, const std::string & algorithm_type, const std::string & visualization, const std::string & output_file_path1) {
     if (!file_exists(input_filename)) {
         std::cerr << "Error: Input file " << input_filename << " does not exist." << std::endl;
         return;
     }
-    if (algorithm_type != "gaussian" && algorithm_type != "deriche" && algorithm_type != "both") {
-        std::cerr << "Error: Invalid algorithm type. Must be 'gaussian', 'deriche', or 'both'." << std::endl;
+    if (algorithm_type != "gaussian" && algorithm_type != "deriche") {
+        std::cerr << "Error: Invalid algorithm type. Must be 'gaussian', 'deriche', ." << std::endl;
         return;
     }
     if (visualization != "yes" && visualization != "no") {
@@ -216,33 +235,21 @@ void GaussianFilter::compare_algorithms(const std::string & input_filename, doub
                 custom_gaussian_output.convertTo(output_image, CV_64F);
                 cv::normalize(output_image, output_image, 0, 255, cv::NORM_MINMAX);
                 cv::imwrite(output_file_path1, output_image);
-            }
-            else {
+            } else {
                 std::cerr << "Error: Output file path " << output_file_path1 << " already exists." << std::endl;
                 return;
             }
         }
 
-        double gaussian_error = calculateGaussianError(input, custom_gaussian_output);
         if (visualization == "yes") {
-            std::vector<std::pair<double, double>>  deviations = calculateDeviations(input, algorithm_type, sigma);
-            std::ofstream out_file("data.txt");
-            for (const auto& deviation : deviations) {
-                out_file << deviation.first << " " << deviation.second << std::endl;
-            }
-            out_file.close();
+            std::vector<std::vector<std::pair<double, double>>> deviations = calculateDeviations(input, algorithm_type,sigma);
             visualizeData(deviations);
-        }
-
-        if (visualization == "no") {
-            std::cout << "MSE Error for custom Gaussian filter: " << gaussian_error << std::endl;
         }
     }
 
     if (algorithm_type == "deriche") {
         cv::Mat recursive_gaussian_output(input.size(), CV_64F);
-        recursiveGaussianDeriche(input, recursive_gaussian_output, sigma);
-
+        cv::GaussianBlur(input, recursive_gaussian_output,cv::Size(0, 0), sigma);
         if (!output_file_path1.empty()) {
             if (!file_exists(output_file_path1)) {
                 cv::Mat output_image;
@@ -250,77 +257,11 @@ void GaussianFilter::compare_algorithms(const std::string & input_filename, doub
                 cv::normalize(output_image, output_image, 0, 255, cv::NORM_MINMAX);
                 cv::imwrite(output_file_path1, output_image);
             }
-            else {
-                std::cerr << "Error: Output file path " << output_file_path1 << " already exists." << std::endl;
-                return;
-            }
         }
-
-        double recursive_gaussian_error = calculateRecursiveGaussianDericheError(input, recursive_gaussian_output);
 
         if (visualization == "yes") {
-            std::vector<std::pair<double, double>> deviations = calculateDeviations(input, algorithm_type, sigma);
-            std::ofstream out_file("data.txt");
-            for (const auto& deviation : deviations) {
-                out_file << deviation.first << " " << deviation.second << std::endl;
-            }
-            out_file.close();
+            std::vector<std::vector<std::pair<double, double>>> deviations = calculateDeviations(input,algorithm_type,sigma);
             visualizeData(deviations);
-        }
-
-        if (visualization == "no") {
-            std::cout << "MSE for Recursive Gaussian Deriche filter: " << recursive_gaussian_error << std::endl;
-        }
-    }
-
-    if (algorithm_type == "both") {
-        custom_gaussian_output = gaussian_filter(input, sigma);
-
-        if (!output_file_path1.empty()) {
-            if (!file_exists(output_file_path1)) {
-                cv::Mat output_image;
-                custom_gaussian_output.convertTo(output_image, CV_64F);
-                cv::normalize(output_image, output_image, 0, 255, cv::NORM_MINMAX);
-                cv::imwrite(output_file_path1, output_image);
-            }
-            else {
-                std::cerr << "Error: Output file path " << output_file_path1 << " already exists." << std::endl;
-                return;
-            }
-        }
-
-        cv::Mat recursive_gaussian_output(input.size(), CV_64F);
-        recursiveGaussianDeriche(input, recursive_gaussian_output, sigma);
-
-        if (!output_file_path2.empty()) {
-            if (!file_exists(output_file_path2)) {
-                cv::Mat output_image;
-                recursive_gaussian_output.convertTo(output_image, CV_64F);
-                cv::normalize(output_image, output_image, 0, 255, cv::NORM_MINMAX);
-                cv::imwrite(output_file_path2, output_image);
-            }
-            else {
-                std::cerr << "Error: Output file path " << output_file_path2 << " already exists." << std::endl;
-                return;
-            }
-        }
-
-        double gaussian_error = calculateGaussianError(input, custom_gaussian_output);
-        double recursive_gaussian_error = calculateRecursiveGaussianDericheError(input, recursive_gaussian_output);
-
-        if (visualization == "yes") {
-            std::vector<std::pair<double, double>> deviations = calculateDeviations(input, algorithm_type, sigma);
-            std::ofstream out_file("data.txt");
-            for (const auto& deviation : deviations) {
-                out_file << deviation.first << " " << deviation.second << std::endl;
-            }
-            out_file.close();
-            visualizeData(deviations);
-        }
-        if (visualization == "no") {
-            std::cout << "MSE Error for custom Gaussian filter: " << gaussian_error << std::endl;
-            std::cout << "MSE for Recursive Gaussian Deriche filter: " << recursive_gaussian_error << std::endl;
-            std::cout << "Difference between Gaussian filter and Gaussian Deriche filter: " << std::abs(gaussian_error - recursive_gaussian_error) << std::endl;
         }
     }
 }
