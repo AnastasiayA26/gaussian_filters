@@ -56,6 +56,13 @@ install(FILES ctikz/ctikz.cpp DESTINATION ctikz)
 install(FILES ctikz/include/ctikz/filter.hpp DESTINATION include/ctikz)
 install(FILES ctikz/CMakeLists.txt DESTINATION ctikz)
 
+add_custom_target(build_all
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
+        DEPENDS filter prj.test ctikz
+        COMMENT "Building all targets..."
+        )
+       
+
 
 
 
