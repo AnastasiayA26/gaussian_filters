@@ -66,7 +66,8 @@ else()
     set(LIB_SUFFIX ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 
-install(DIRECTORY "${LIB_SUFFIX}/opencv" DESTINATION bin)
+install(DIRECTORY ${OpenCV_RUNTIME_PATH}/ DESTINATION bin FILES_MATCHING PATTERN "*opencv*.dll")
+install(DIRECTORY ${OpenCV_INCLUDE_DIRS}/ DESTINATION include FILES_MATCHING PATTERN "*.hpp")
 
 install(FILES CMakeLists.txt filter/CMakeLists.txt prj.test/CMakeLists.txt ctikz/CMakeLists.txt DESTINATION .)
 
