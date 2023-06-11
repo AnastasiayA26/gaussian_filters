@@ -66,18 +66,6 @@ else()
     set(LIB_SUFFIX ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 endif()
 
-if(NOT EXISTS "${LIB_SUFFIX}/opencv")
-    file(MAKE_DIRECTORY "${LIB_SUFFIX}/opencv")
-endif()
-
-if(NOT EXISTS "${LIB_SUFFIX}/opencv/haarcascades")
-    file(MAKE_DIRECTORY "${LIB_SUFFIX}/opencv/haarcascades")
-endif()
-file(GLOB OpenCV_RUNTIME_FILES "${OpenCV_RUNTIME_PATH}/*opencv*.dll")
-foreach(file ${OpenCV_RUNTIME_FILES})
-    file(COPY "${file}" DESTINATION "${LIB_SUFFIX}/opencv")
-endforeach()
-file(COPY "${OpenCV_RUNTIME_PATH}/haarcascades" DESTINATION "${LIB_SUFFIX}/opencv")
 install(DIRECTORY "${LIB_SUFFIX}/opencv" DESTINATION bin)
 
 install(FILES CMakeLists.txt filter/CMakeLists.txt prj.test/CMakeLists.txt ctikz/CMakeLists.txt DESTINATION .)
