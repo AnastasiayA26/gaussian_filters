@@ -71,10 +71,6 @@ install(DIRECTORY ${OpenCV_INCLUDE_DIRS}/ DESTINATION include FILES_MATCHING PAT
 
 install(FILES CMakeLists.txt filter/CMakeLists.txt prj.test/CMakeLists.txt ctikz/CMakeLists.txt DESTINATION .)
 
-install(DIRECTORY cmake/ DESTINATION .
-        FILES_MATCHING PATTERN "*"
-        PATTERN "cmake" EXCLUDE)
-
 
        
 
