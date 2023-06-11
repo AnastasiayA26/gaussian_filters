@@ -58,15 +58,27 @@ install(TARGETS ctikz DESTINATION bin)
 install(DIRECTORY ctikz/include/ DESTINATION include/ctikz)
 install(FILES ctikz/ctikz.cpp ctikz/include/ctikz/ctikz.hpp DESTINATION ctikz)
 
-# Install OpenCV runtime files
-if(NOT WIN32)
-    set(LIB_SUFFIX ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-else()
-    set(LIB_SUFFIX ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-endif()
+# Install specific OpenCV runtime files
+install(FILES
+        "${OpenCV_RUNTIME_PATH}/jpeg62.dll"
+        "${OpenCV_RUNTIME_PATH}/liblzma.dll"
+        "${OpenCV_RUNTIME_PATH}/libpng16d.dll"
+        "${OpenCV_RUNTIME_PATH}/libsharpyuv.dll"
+        "${OpenCV_RUNTIME_PATH}/libwebp.dll"
+        "${OpenCV_RUNTIME_PATH}/libwebpdecoder.dll"
+        "${OpenCV_RUNTIME_PATH}/opencv_core4d.dll"
+        "${OpenCV_RUNTIME_PATH}/opencv_highgui4d.dll"
+        "${OpenCV_RUNTIME_PATH}/opencv_imgcodecs4d.dll"
+        "${OpenCV_RUNTIME_PATH}/opencv_imgproc4d.dll"
+        "${OpenCV_RUNTIME_PATH}/opencv_videoio4d.dll"
+        "${OpenCV_RUNTIME_PATH}/tiffd.dll"
+        "${OpenCV_RUNTIME_PATH}/zlibd1.dll"
+        "${OpenCV_RUNTIME_PATH}/libpng16*"
+        DESTINATION bin)
 
-install(DIRECTORY ${OpenCV_RUNTIME_PATH}/ DESTINATION bin FILES_MATCHING PATTERN "*opencv*.dll")
+# Install OpenCV include files
 install(DIRECTORY ${OpenCV_INCLUDE_DIRS}/ DESTINATION include)
+       
 
        
 
