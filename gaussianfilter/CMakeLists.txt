@@ -41,6 +41,12 @@ if(DOXYGEN_FOUND)
             COMMENT "Generating API documentation with Doxygen" VERBATIM)
 endif(DOXYGEN_FOUND)
 
+add_custom_target(build_all
+        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
+        DEPENDS filter prj.test ctikz
+        COMMENT "Building all targets..."
+        )
+
 # Install section
 install(TARGETS filter DESTINATION bin)
 install(DIRECTORY filter/include/ DESTINATION include/filter)
@@ -54,11 +60,6 @@ install(FILES ctikz/ctikz.cpp DESTINATION ctikz)
 install(FILES ctikz/include/ctikz/filter.hpp DESTINATION include/ctikz)
 install(FILES ctikz/CMakeLists.txt DESTINATION ctikz)
 
-add_custom_target(build_all
-        COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}
-        DEPENDS filter prj.test ctikz
-        COMMENT "Building all targets..."
-        )
        
 
 
