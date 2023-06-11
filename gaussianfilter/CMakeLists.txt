@@ -47,18 +47,20 @@ add_custom_target(build_all
         COMMENT "Building all targets..."
         )
 
-# Install section
 install(TARGETS filter DESTINATION bin)
 install(DIRECTORY filter/include/ DESTINATION include/filter)
-install(FILES filter/src/filter.cpp DESTINATION src/filter)
-install(DIRECTORY prj.test DESTINATION .)
-install(DIRECTORY cmake DESTINATION .)
-install(FILES CMakeLists.txt DESTINATION .)
+install(FILES filter/src/filter.cpp DESTINATION filter/src)
+
+install(DIRECTORY prj.test/ DESTINATION bin/prj.test)
+install(DIRECTORY cmake/ DESTINATION .)
+
 install(TARGETS ctikz DESTINATION bin)
 install(DIRECTORY ctikz/include/ DESTINATION include/ctikz)
 install(FILES ctikz/ctikz.cpp DESTINATION ctikz)
-install(FILES ctikz/include/ctikz/filter.hpp DESTINATION include/ctikz)
-install(FILES ctikz/CMakeLists.txt DESTINATION ctikz)
+install(FILES ctikz/include/ctikz/ctikz.hpp DESTINATION include/ctikz)
+
+install(FILES CMakeLists.txt filter/CMakeLists.txt prj.test/CMakeLists.txt ctikz/CMakeLists.txt DESTINATION .)
+
 
        
 
