@@ -52,12 +52,11 @@ install(DIRECTORY filter/include/ DESTINATION include/filter)
 install(FILES filter/src/filter.cpp DESTINATION filter/src)
 
 install(DIRECTORY prj.test/ DESTINATION bin/prj.test)
-install(DIRECTORY cmake/ DESTINATION .)
+install(FILES prj.test/CMakeLists.txt prj.test/test.cpp DESTINATION bin/prj.test)
 
 install(TARGETS ctikz DESTINATION bin)
 install(DIRECTORY ctikz/include/ DESTINATION include/ctikz)
-install(FILES ctikz/ctikz.cpp DESTINATION ctikz)
-install(FILES ctikz/include/ctikz/ctikz.hpp DESTINATION include/ctikz)
+install(FILES ctikz/ctikz.cpp ctikz/include/ctikz/ctikz.hpp DESTINATION ctikz)
 
 # Install OpenCV runtime files
 if(NOT WIN32)
@@ -67,10 +66,7 @@ else()
 endif()
 
 install(DIRECTORY ${OpenCV_RUNTIME_PATH}/ DESTINATION bin FILES_MATCHING PATTERN "*opencv*.dll")
-install(DIRECTORY ${OpenCV_INCLUDE_DIRS}/ DESTINATION include FILES_MATCHING PATTERN "*.hpp")
-
-install(FILES CMakeLists.txt filter/CMakeLists.txt prj.test/CMakeLists.txt ctikz/CMakeLists.txt DESTINATION .)
-
+install(DIRECTORY ${OpenCV_INCLUDE_DIRS}/ DESTINATION include)
 
        
 
