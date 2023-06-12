@@ -45,17 +45,18 @@ add_custom_target(build_all
         DEPENDS filter prj.test ctikz
         COMMENT "Building all targets..."
         )
-
+        
 install(TARGETS filter DESTINATION bin)
 install(DIRECTORY filter/include/ DESTINATION include/filter)
 install(FILES filter/src/filter.cpp DESTINATION filter/src)
 
 install(DIRECTORY prj.test/ DESTINATION bin/prj.test)
-install(FILES prj.test/CMakeLists.txt prj.test/test.cpp DESTINATION bin/prj.test)
+install(FILES prj.test/test.cpp DESTINATION bin/prj.test)
+install(FILES prj.test/CMakeLists.txt DESTINATION bin/prj.test)
 
 install(TARGETS ctikz DESTINATION bin)
 install(DIRECTORY ctikz/include/ DESTINATION include/ctikz)
-install(FILES ctikz/ctikz.cpp ctikz/include/ctikz/ctikz.hpp DESTINATION ctikz)
+install(FILES ctikz/ctikz.cpp ctikz/include/ctikz/ctikz.hpp DESTINATION include/ctikz)
 
 # Install OpenCV runtime files
 install(FILES
@@ -75,13 +76,11 @@ install(FILES
         "${OpenCV_RUNTIME_PATH}/libpng16*"
         DESTINATION bin)
 
-# Install prj.test directory
-install(DIRECTORY prj.test/ DESTINATION bin/prj.test)
-install(FILES prj.test/CMakeLists.txt prj.test/test.cpp DESTINATION bin/prj.test)
-
 # Install CMakeLists.txt files
-install(FILES CMakeLists.txt filter/CMakeLists.txt prj.test/CMakeLists.txt ctikz/CMakeLists.txt DESTINATION .)
-
+install(FILES CMakeLists.txt DESTINATION .)
+install(FILES filter/CMakeLists.txt DESTINATION filter)
+install(FILES prj.test/CMakeLists.txt DESTINATION prj.test)
+install(FILES ctikz/CMakeLists.txt DESTINATION ctikz)
 
 
 
