@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 14)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmake")
-
 set(CMAKE_VERBOSE_MAKEFILE True)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
@@ -51,11 +50,14 @@ install(TARGETS filter DESTINATION bin)
 install(DIRECTORY filter/include/ DESTINATION include/filter)
 install(FILES filter/src/filter.cpp DESTINATION filter/src)
 
+install(DIRECTORY prj.test/ DESTINATION bin/prj.test)
+install(FILES prj.test/CMakeLists.txt prj.test/test.cpp DESTINATION bin/prj.test)
+
 install(TARGETS ctikz DESTINATION bin)
 install(DIRECTORY ctikz/include/ DESTINATION include/ctikz)
 install(FILES ctikz/ctikz.cpp ctikz/include/ctikz/ctikz.hpp DESTINATION ctikz)
 
-# Install specific OpenCV runtime files
+# Install OpenCV runtime files
 install(FILES
         "${OpenCV_RUNTIME_PATH}/jpeg62.dll"
         "${OpenCV_RUNTIME_PATH}/liblzma.dll"
@@ -73,12 +75,15 @@ install(FILES
         "${OpenCV_RUNTIME_PATH}/libpng16*"
         DESTINATION bin)
 
-# Install prj.test
+# Install prj.test directory
 install(DIRECTORY prj.test/ DESTINATION bin/prj.test)
-install(TARGETS test DESTINATION bin/prj.test)
+install(FILES prj.test/CMakeLists.txt prj.test/test.cpp DESTINATION bin/prj.test)
 
-# Install OpenCV include files
-install(DIRECTORY ${OpenCV_INCLUDE_DIRS}/ DESTINATION include)
+# Install CMakeLists.txt files
+install(FILES CMakeLists.txt filter/CMakeLists.txt prj.test/CMakeLists.txt ctikz/CMakeLists.txt DESTINATION .)
+
+
+
 
        
 
